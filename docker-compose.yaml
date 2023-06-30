@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+
+  shipper:
+    build:
+      context: .
+      args:
+        package: shipper
+    image: shipper:latest
+    depends_on:
+      - receiver
+    volumes:
+      - ./input:/input
+    command: "--receiver-addr http://receiver:8080 --watch-dir /input"
+
+  receiver:
+    build:
+      context: .
+      args:
+        package: receiver
+    ports:
+      - "8080:8080"
+    image: receiver:latest
+    command: "--addr :8080"
+
+
+#  nats:
+#    image: nats:2.1-alpine3.11

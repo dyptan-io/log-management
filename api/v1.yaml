@@ -1,0 +1,130 @@
+openapi: 3.0.0
+info:
+  description: |
+    This is an API for Log Management solution - a Snow codding test
+  title: Log Management API
+  version: 0.0.1
+paths:
+  /health:
+    get:
+      summary: Health check endpoint.
+      operationId: health
+      responses:
+        '200':
+          description: OK
+  /v1/logs:
+    get:
+      summary: An endpoint to retrieve logs.
+      operationId: ListLogs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Log"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: An endpoint to submit logs.
+      operationId: PostLog
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: Log entries to store.
+              type: array
+              items:
+                $ref: "#/components/schemas/Log"
+
+      responses:
+        '202':
+          description: Accepted
+          headers:
+            Location:
+              description: The URI with result of accepted request.
+              schema:
+                type: string
+
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/logs/{id}:
+    get:
+      summary: Returns the Log entry by its ID.
+      operationId: GetLogsById
+      parameters:
+        - description: Log entry identifier.
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Log"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      title: ErrorResponse is the error response.
+      required:
+        - errors
+      properties:
+        errors:
+          description: List of errors.
+          type: array
+          items:
+            type: string
+    Log:
+      type: object
+      title: Represents a Log entity.
+      required:
+        - id
+        - message
+        - severity
+        - attributes
+        - timestamp
+      properties:
+        id:
+          description: The Log entry identifier.
+          type: string
+        message:
+          description: The massage of the the Log entry.
+          type: string
+        severity:
+          description: A severity level of the Log entry.
+          type: string
+        timestamp:
+          description: The RFC3339 timestamp of the Log entry.
+          type: string
+        attributes:
+          description: A list of dynamic attributes that Log entry can contain.
+          type: object
+          title: Dynamic attributes.
