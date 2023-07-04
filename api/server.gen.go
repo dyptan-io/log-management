@@ -4,6 +4,8 @@
 package api
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -36,6 +38,12 @@ type Log struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// ListLogsParams defines parameters for ListLogs.
+type ListLogsParams struct {
+	From *time.Time `form:"from,omitempty" json:"from,omitempty"`
+	To   *time.Time `form:"to,omitempty" json:"to,omitempty"`
+}
+
 // PostLogJSONBody defines parameters for PostLog.
 type PostLogJSONBody = []Log
 
@@ -49,7 +57,7 @@ type ServerInterface interface {
 	Health(w http.ResponseWriter, r *http.Request)
 	// An endpoint to retrieve logs.
 	// (GET /v1/logs)
-	ListLogs(w http.ResponseWriter, r *http.Request)
+	ListLogs(w http.ResponseWriter, r *http.Request, params ListLogsParams)
 	// An endpoint to submit logs.
 	// (POST /v1/logs)
 	PostLog(w http.ResponseWriter, r *http.Request)
@@ -86,8 +94,29 @@ func (siw *ServerInterfaceWrapper) Health(w http.ResponseWriter, r *http.Request
 func (siw *ServerInterfaceWrapper) ListLogs(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListLogsParams
+
+	// ------------- Optional query parameter "from" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "from", r.URL.Query(), &params.From)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "from", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "to" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "to", r.URL.Query(), &params.To)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "to", Err: err})
+		return
+	}
+
 	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListLogs(w, r)
+		siw.Handler.ListLogs(w, r, params)
 	})
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -265,4 +294,263 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 
 	return r
+}
+
+type HealthRequestObject struct {
+}
+
+type HealthResponseObject interface {
+	VisitHealthResponse(w http.ResponseWriter) error
+}
+
+type Health200Response struct {
+}
+
+func (response Health200Response) VisitHealthResponse(w http.ResponseWriter) error {
+	w.WriteHeader(200)
+	return nil
+}
+
+type ListLogsRequestObject struct {
+	Params ListLogsParams
+}
+
+type ListLogsResponseObject interface {
+	VisitListLogsResponse(w http.ResponseWriter) error
+}
+
+type ListLogs200JSONResponse []Log
+
+func (response ListLogs200JSONResponse) VisitListLogsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListLogs400JSONResponse ErrorResponse
+
+func (response ListLogs400JSONResponse) VisitListLogsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostLogRequestObject struct {
+	Body *PostLogJSONRequestBody
+}
+
+type PostLogResponseObject interface {
+	VisitPostLogResponse(w http.ResponseWriter) error
+}
+
+type PostLog202ResponseHeaders struct {
+	Location string
+}
+
+type PostLog202Response struct {
+	Headers PostLog202ResponseHeaders
+}
+
+func (response PostLog202Response) VisitPostLogResponse(w http.ResponseWriter) error {
+	w.Header().Set("Location", fmt.Sprint(response.Headers.Location))
+	w.WriteHeader(202)
+	return nil
+}
+
+type PostLog400JSONResponse ErrorResponse
+
+func (response PostLog400JSONResponse) VisitPostLogResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetLogsByIdRequestObject struct {
+	Id string `json:"id"`
+}
+
+type GetLogsByIdResponseObject interface {
+	VisitGetLogsByIdResponse(w http.ResponseWriter) error
+}
+
+type GetLogsById200JSONResponse Log
+
+func (response GetLogsById200JSONResponse) VisitGetLogsByIdResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetLogsById400JSONResponse ErrorResponse
+
+func (response GetLogsById400JSONResponse) VisitGetLogsByIdResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetLogsById404JSONResponse ErrorResponse
+
+func (response GetLogsById404JSONResponse) VisitGetLogsByIdResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+// StrictServerInterface represents all server handlers.
+type StrictServerInterface interface {
+	// Health check endpoint.
+	// (GET /health)
+	Health(ctx context.Context, request HealthRequestObject) (HealthResponseObject, error)
+	// An endpoint to retrieve logs.
+	// (GET /v1/logs)
+	ListLogs(ctx context.Context, request ListLogsRequestObject) (ListLogsResponseObject, error)
+	// An endpoint to submit logs.
+	// (POST /v1/logs)
+	PostLog(ctx context.Context, request PostLogRequestObject) (PostLogResponseObject, error)
+	// Returns the Log entry by its ID.
+	// (GET /v1/logs/{id})
+	GetLogsById(ctx context.Context, request GetLogsByIdRequestObject) (GetLogsByIdResponseObject, error)
+}
+
+type StrictHandlerFunc = runtime.StrictHttpHandlerFunc
+type StrictMiddlewareFunc = runtime.StrictHttpMiddlewareFunc
+
+type StrictHTTPServerOptions struct {
+	RequestErrorHandlerFunc  func(w http.ResponseWriter, r *http.Request, err error)
+	ResponseErrorHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
+}
+
+func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
+	return &strictHandler{ssi: ssi, middlewares: middlewares, options: StrictHTTPServerOptions{
+		RequestErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, err error) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		},
+		ResponseErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, err error) {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		},
+	}}
+}
+
+func NewStrictHandlerWithOptions(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc, options StrictHTTPServerOptions) ServerInterface {
+	return &strictHandler{ssi: ssi, middlewares: middlewares, options: options}
+}
+
+type strictHandler struct {
+	ssi         StrictServerInterface
+	middlewares []StrictMiddlewareFunc
+	options     StrictHTTPServerOptions
+}
+
+// Health operation middleware
+func (sh *strictHandler) Health(w http.ResponseWriter, r *http.Request) {
+	var request HealthRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.Health(ctx, request.(HealthRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "Health")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(HealthResponseObject); ok {
+		if err := validResponse.VisitHealthResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("Unexpected response type: %T", response))
+	}
+}
+
+// ListLogs operation middleware
+func (sh *strictHandler) ListLogs(w http.ResponseWriter, r *http.Request, params ListLogsParams) {
+	var request ListLogsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListLogs(ctx, request.(ListLogsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListLogs")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListLogsResponseObject); ok {
+		if err := validResponse.VisitListLogsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("Unexpected response type: %T", response))
+	}
+}
+
+// PostLog operation middleware
+func (sh *strictHandler) PostLog(w http.ResponseWriter, r *http.Request) {
+	var request PostLogRequestObject
+
+	var body PostLogJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PostLog(ctx, request.(PostLogRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PostLog")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PostLogResponseObject); ok {
+		if err := validResponse.VisitPostLogResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("Unexpected response type: %T", response))
+	}
+}
+
+// GetLogsById operation middleware
+func (sh *strictHandler) GetLogsById(w http.ResponseWriter, r *http.Request, id string) {
+	var request GetLogsByIdRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetLogsById(ctx, request.(GetLogsByIdRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetLogsById")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetLogsByIdResponseObject); ok {
+		if err := validResponse.VisitGetLogsByIdResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("Unexpected response type: %T", response))
+	}
 }

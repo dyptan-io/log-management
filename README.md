@@ -44,8 +44,6 @@ Add log files to configured directory (/testdata as default) and fetch collected
 curl http://localhost:8080/v1/logs
 ```
 
-Example output:
-
 ```json
 [
   {
@@ -67,12 +65,11 @@ Example output:
 ]
 ```
 
+Get log entries by ID:
 
 ```sh
 curl http://localhost:8080/v1/logs/a5843dcb-9f21-4123-9c7c-688f0e8b88a7
 ```
-
-Example output:
 
 ```json
 {
@@ -82,4 +79,24 @@ Example output:
   "severity": "Error",
   "timestamp": "2021-11-10T13:18:52Z"
 }
+```
+
+Filter log entries by timestamp:
+
+```sh
+curl 'http://localhost:8080/v1/logs?from=2021-11-10T13%3A18%3A53Z&to=2021-11-10T13%3A18%3A55Z'
+```
+
+```json
+[
+  {
+    "attributes": {
+      "test": "test"
+    },
+    "id": "0d3f329c-3d20-4975-9beb-cf4425d3a138",
+    "message": "Task faulted 3: 'Failed to listen on port 80'",
+    "severity": "Error",
+    "timestamp": "2021-11-10T13:18:54Z"
+  }
+]
 ```

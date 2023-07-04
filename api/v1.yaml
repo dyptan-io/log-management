@@ -16,6 +16,19 @@ paths:
     get:
       summary: An endpoint to retrieve logs.
       operationId: ListLogs
+      parameters:
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+            example: 2017-07-21T17:32:28Z
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+            example: 2017-07-21T17:32:28Z
       responses:
         '200':
           description: OK
@@ -43,7 +56,6 @@ paths:
               type: array
               items:
                 $ref: "#/components/schemas/Log"
-
       responses:
         '202':
           description: Accepted

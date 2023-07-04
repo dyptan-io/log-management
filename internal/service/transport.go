@@ -28,8 +28,11 @@ func (Server) Health(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s Server) ListLogs(w http.ResponseWriter, r *http.Request) {
-	entries, err := s.repo.GetAll()
+func (s Server) ListLogs(w http.ResponseWriter, _ *http.Request, params api.ListLogsParams) {
+	entries, err := s.repo.Get(SearchOptions{
+		From: params.From,
+		To:   params.To,
+	})
 	if err != nil {
 		s.handleError(w, err)
 		return
@@ -60,7 +63,7 @@ func (s Server) PostLog(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s Server) GetLogsById(w http.ResponseWriter, r *http.Request, id string) {
+func (s Server) GetLogsById(w http.ResponseWriter, _ *http.Request, id string) {
 	entry, err := s.repo.GetByID(id)
 	if err != nil {
 		s.handleError(w, err)

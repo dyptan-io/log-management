@@ -93,7 +93,7 @@ type ClientInterface interface {
 	Health(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListLogs request
-	ListLogs(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListLogs(ctx context.Context, params *ListLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostLog request with any body
 	PostLogWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -116,8 +116,8 @@ func (c *Client) Health(ctx context.Context, reqEditors ...RequestEditorFn) (*ht
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListLogs(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListLogsRequest(c.Server)
+func (c *Client) ListLogs(ctx context.Context, params *ListLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListLogsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func NewHealthRequest(server string) (*http.Request, error) {
 }
 
 // NewListLogsRequest generates requests for ListLogs
-func NewListLogsRequest(server string) (*http.Request, error) {
+func NewListLogsRequest(server string, params *ListLogsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -208,6 +208,44 @@ func NewListLogsRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.From != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "from", runtime.ParamLocationQuery, *params.From); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.To != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "to", runtime.ParamLocationQuery, *params.To); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -339,7 +377,7 @@ type ClientWithResponsesInterface interface {
 	HealthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*HealthResponse, error)
 
 	// ListLogs request
-	ListLogsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLogsResponse, error)
+	ListLogsWithResponse(ctx context.Context, params *ListLogsParams, reqEditors ...RequestEditorFn) (*ListLogsResponse, error)
 
 	// PostLog request with any body
 	PostLogWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLogResponse, error)
@@ -450,8 +488,8 @@ func (c *ClientWithResponses) HealthWithResponse(ctx context.Context, reqEditors
 }
 
 // ListLogsWithResponse request returning *ListLogsResponse
-func (c *ClientWithResponses) ListLogsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLogsResponse, error) {
-	rsp, err := c.ListLogs(ctx, reqEditors...)
+func (c *ClientWithResponses) ListLogsWithResponse(ctx context.Context, params *ListLogsParams, reqEditors ...RequestEditorFn) (*ListLogsResponse, error) {
+	rsp, err := c.ListLogs(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
