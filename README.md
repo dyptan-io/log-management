@@ -1,21 +1,45 @@
 # Log Management - A Snow Software coding test
 
+- [Requirements](#requirements)
 - [Overview](#overview)
 - [API Specification](#api-specification)
 - [Development](#development)
 - [Setup and Testing](#setup-and-testing)
 
+## Requirements
+
+#### Log shipper
+
+The log shipper should be able to read logs from a configurable source and send these forward to the receiver. The scope of this exercise is to
+have the file system as a supported source and for this source, the following should to be supported:
+- [x]  Detecting when new files are added to the observed directories on the file system
+- [x]  Post the rows within the text files in the directories to the REST API exposed by the log receiver
+- [x]  Delta updates is desirable but not required where added rows to existing log files are written after initial upload
+
+#### Log receiver
+
+The log receiver accepts incoming log rows, stores these and makes them available for an end-user to read.
+An REST API should be exposed for receiving the log rows and for reading them
+- [x] Only unique rows shall be stored
+- [x] The id parameter in the incoming logs should be used for uniqueness
+- [x] Basic filtering is a plus but not required where the user can filter on time received in the read API in the log receiver
+- [x] The logs must be stored in-memory of the receiver
+- [ ] A bonus (but not a requirement) is to store the logs in a persistent store in
+addition to the in-memory store
+
 ## Overview
 
 The implementation of Snow coding challenge for Log Management solution is consists of two main components: a web server
 (Log receiver) and log watcher (Log shipper). Both components share a single [Dockerfile](Dockerfile) and [internal](internal)
-libraries for convenience.
+libraries for convenience. Tests are added only for [InMemory](internal/platform/storage/inmemory_test.go) storage so far.
+
 
 It utilizes some commonly used libraries and tools to facilitate development, such as:
 
 - [oapi-codegen](https://github.com/deepmap/oapi-codegen) Go-centric OpenAPI Client and Server Code Generator.
 - [go-chi](https://github.com/go-chi/chi) A lightweight, idiomatic Go HTTP server and router.
 - [slog](https://pkg.go.dev/golang.org/x/exp/slog) A new structured logger from standard library.
+- [testify](https://github.com/stretchr/testify) A handy toolkit for assertion in tests.
 
 ## API Specification
 
