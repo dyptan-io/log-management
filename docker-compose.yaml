@@ -10,8 +10,8 @@ services:
     depends_on:
       - receiver
     volumes:
-      - ./input:/input
-    command: "--receiver-addr http://receiver:8080 --watch-dir /input"
+      - ./testdata:/testdata
+    command: "--receiver-addr http://receiver:8080 --watch-dirs testdata/dir1,testdata/dir2"
 
   receiver:
     build:
@@ -22,7 +22,3 @@ services:
       - "8080:8080"
     image: receiver:latest
     command: "--addr :8080"
-
-
-#  nats:
-#    image: nats:2.1-alpine3.11

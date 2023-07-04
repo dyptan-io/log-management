@@ -14,7 +14,6 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 FROM alpine:3.17
 
 COPY --from=builder /src/srv /usr/local/bin/
-COPY --from=builder /src/api/v1.yaml /usr/local/bin/
 
 EXPOSE 8080
 

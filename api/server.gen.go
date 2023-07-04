@@ -6,6 +6,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
@@ -32,7 +33,7 @@ type Log struct {
 	Severity string `json:"severity"`
 
 	// Timestamp The RFC3339 timestamp of the Log entry.
-	Timestamp string `json:"timestamp"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // PostLogJSONBody defines parameters for PostLog.

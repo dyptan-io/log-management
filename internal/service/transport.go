@@ -84,11 +84,11 @@ func toStatus(err error) int {
 		return http.StatusOK
 	}
 
-	if isError(err, ErrBadRequestID) {
+	if isError(err, storage.ErrMissingID, ErrBadRequestID) {
 		return http.StatusBadRequest
 	}
 
-	if isError(err, storage.ErrMissingID, storage.ErrNotFound) {
+	if isError(err, storage.ErrNotFound) {
 		return http.StatusNotFound
 	}
 

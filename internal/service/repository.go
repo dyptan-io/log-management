@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/diptanw/log-management/internal/platform/storage"
 )
@@ -21,7 +22,7 @@ type LogEntry struct {
 	Id         string
 	Message    string
 	Severity   string
-	Timestamp  string
+	Timestamp  time.Time
 	Attributes map[string]any
 }
 
@@ -67,7 +68,7 @@ func (r Repository) GetAll() ([]LogEntry, error) {
 // Create creates a new Log entity in the storage.
 func (r Repository) Create(entry LogEntry) (LogEntry, error) {
 	if err := r.db.Insert(entry); err != nil {
-		return LogEntry{}, fmt.Errorf("inserting entry entry: %w", err)
+		return LogEntry{}, fmt.Errorf("inserting log entry: %w", err)
 	}
 
 	return entry, nil

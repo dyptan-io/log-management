@@ -2,28 +2,57 @@ package processor
 
 import (
 	"encoding/json"
+	"strings"
+	"time"
 
 	"github.com/diptanw/log-management/api"
 )
 
-type DecoderJSON struct{}
+type (
+	DecoderJSON struct{}
+	raw         map[string]any
+)
 
 func (DecoderJSON) Decode(b []byte) (api.Log, error) {
-	var raw struct {
-		Id string `json:"id"`
-		L  string `json:"@l"`
-		M  string `json:"@m"`
-		T  string `json:"@t"`
-	}
+	var r raw
 
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(b, &r); err != nil {
 		return api.Log{}, err
 	}
 
-	return api.Log{
-		Id:        raw.Id,
-		Severity:  raw.L,
-		Message:   raw.M,
-		Timestamp: raw.T,
-	}, nil
+	log := api.Log{
+		Id:        r.string("id"),
+		Severity:  r.string("@l"),
+		Message:   r.string("@m"),
+		Timestamp: r.time("@t"),
+	}
+
+	// Set remaining fields as extra attributes.
+	log.Attributes = r
+
+	return log, nil
+}
+
+func (r raw) string(name string) string {
+	if str, ok := r[name]; ok {
+		delete(r, name)
+		return str.(string)
+	}
+
+	return ""
+}
+
+func (r raw) time(name string) time.Time {
+	rawT := r.string(name)
+	if rawT == "" {
+		return time.Time{}
+	}
+
+	// TODO: Use custom layout parsing instead of trimming microseconds.
+	t, err := time.Parse(time.DateTime, rawT[:strings.LastIndex(rawT, ":")])
+	if err != nil {
+		return time.Time{}
+	}
+
+	return t
 }

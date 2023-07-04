@@ -4,12 +4,11 @@ import (
 	"flag"
 )
 
-// Config contains server configuration
+// Config contains server configuration for Receiver service.
 type Config struct {
 	HTTPAddr string
 }
 
-// readConfig reads config values from command args
 func readConfig() Config {
 	config := Config{}
 

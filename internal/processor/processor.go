@@ -5,35 +5,28 @@ import (
 	"fmt"
 	"net/http"
 
-	"golang.org/x/exp/slog"
-
 	"github.com/diptanw/log-management/api"
 	"github.com/diptanw/log-management/internal/platform/server"
 )
 
 type (
-	// Decoder is an interface for Log decoder.
-	Decoder interface {
+	// SourceDecoder is an interface for Log decoder.
+	SourceDecoder interface {
 		Decode(b []byte) (api.Log, error)
-	}
-
-	Source interface {
 	}
 
 	// Processor is a struct that processes and send log entries to receiver.
 	Processor struct {
-		decoder Decoder
+		decoder SourceDecoder
 		client  *api.Client
-		logger  *slog.Logger
 	}
 )
 
 // New returns a new instance of Processor.
-func New(encoder Decoder, client *api.Client, logger *slog.Logger) Processor {
+func New(encoder SourceDecoder, client *api.Client) Processor {
 	return Processor{
 		decoder: encoder,
 		client:  client,
-		logger:  logger,
 	}
 }
 
@@ -47,11 +40,11 @@ func (p Processor) Process(m server.Message) error {
 	// For optimal performance, logs need to be sent in batches.
 	resp, err := p.client.PostLog(context.Background(), []api.Log{log})
 	if err != nil {
-		return fmt.Errorf("sending entries to receiver: %w", err)
+		return fmt.Errorf("sending entry to receiver: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		p.logger.Error("Server responded with unsuccessful status code", slog.Int("code", resp.StatusCode))
+		return fmt.Errorf("server responded with unsuccessful status code: %d", resp.StatusCode)
 	}
 
 	return nil

@@ -2,20 +2,25 @@ package main
 
 import (
 	"flag"
+	"strings"
 )
 
-// Config is a struct that contains server configuration.
+// Config is a struct that contains Shipper service configuration.
 type Config struct {
 	ReceiverAddr string
-	WatchDir     string
+	WatchDirs    []string
 }
 
 func readConfig() Config {
 	var config Config
 
-	flag.StringVar(&config.ReceiverAddr, "receiver-addr", "http://localhost:80", "an address of receiver server")
-	flag.StringVar(&config.WatchDir, "watch-dir", "./input", "a directory to watch for log files")
+	var watchDirs string
+
+	flag.StringVar(&watchDirs, "watch-dirs", "./testdata", "directories to watch for log files")
+	flag.StringVar(&config.ReceiverAddr, "receiver-addr", "http://localhost:8080", "an address of the receiver server")
 	flag.Parse()
+
+	config.WatchDirs = strings.Split(watchDirs, ",")
 
 	return config
 }

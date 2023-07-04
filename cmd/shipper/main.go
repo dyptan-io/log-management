@@ -9,6 +9,7 @@ import (
 	"golang.org/x/exp/slog"
 
 	"github.com/diptanw/log-management/api"
+	"github.com/diptanw/log-management/internal/platform/fs"
 	"github.com/diptanw/log-management/internal/platform/server"
 	"github.com/diptanw/log-management/internal/processor"
 )
@@ -18,13 +19,11 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	receiverClient, _ := api.NewClient(config.ReceiverAddr)
-	watcher := processor.Watch(config.WatchDir, time.Second, logger)
-	handler := processor.New(processor.DecoderJSON{}, receiverClient, logger)
+	reader := fs.Watch(config.WatchDirs, time.Second, logger)
+	handler := processor.New(processor.DecoderJSON{}, receiverClient)
+	listener := server.NewStreamReader(io.NopCloser(reader), handler.Process)
 
-	listener := server.NewStreamReader(io.NopCloser(watcher), handler.Process)
-	srv := server.New(listener, logger)
-
-	if err := srv.Serve(context.Background()); err != nil {
+	if err := server.New(listener, logger).Serve(context.Background()); err != nil {
 		logger.Error("Error occurred", "error", err)
 		os.Exit(1)
 	}

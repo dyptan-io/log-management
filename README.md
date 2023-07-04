@@ -9,7 +9,7 @@
 
 The implementation of Snow coding challenge for Log Management solution is consists of two main components: a web server
 (Log receiver) and log watcher (Log shipper). Both components share a single [Dockerfile](Dockerfile) and [internal](internal)
-libraries for convenience. Application code can be found in [cmd](cmd).
+libraries for convenience.
 
 It utilizes some commonly used libraries and tools to facilitate development, such as:
 
@@ -38,7 +38,7 @@ Use docker-compose to build and run both services:
 docker-compose up --build
 ```
 
-Add log files to configured directory (/input as default) and fetch collected logs:
+Add log files to configured directory (/testdata as default) and fetch collected logs:
 
 ```sh
 curl http://localhost:8080/v1/logs
@@ -49,25 +49,20 @@ Example output:
 ```json
 [
   {
-    "attributes": null,
+    "attributes": {},
     "id": "a5843dcb-9f21-4123-9c7c-688f0e8b88a7",
     "message": "Task faulted: 'Failed to listen on port 80'",
     "severity": "Error",
-    "timestamp": "2021-11-10 13:18:52:190183"
+    "timestamp": "2021-11-10T13:18:52Z"
   },
   {
-    "attributes": null,
-    "id": "db854452-d5f4-47ef-8098-0a0c4143f319",
-    "message": "Task faulted 2: 'Failed to listen on port 80'",
-    "severity": "Error",
-    "timestamp": "2021-11-10 13:18:53:190183"
-  },
-  {
-    "attributes": null,
+    "attributes": {
+      "test": "test"
+    },
     "id": "0d3f329c-3d20-4975-9beb-cf4425d3a138",
     "message": "Task faulted 3: 'Failed to listen on port 80'",
     "severity": "Error",
-    "timestamp": "2021-11-10 13:18:54:190183"
+    "timestamp": "2021-11-10T13:18:54Z"
   }
 ]
 ```
@@ -81,10 +76,10 @@ Example output:
 
 ```json
 {
-  "attributes": null,
+  "attributes": {},
   "id": "a5843dcb-9f21-4123-9c7c-688f0e8b88a7",
   "message": "Task faulted: 'Failed to listen on port 80'",
   "severity": "Error",
-  "timestamp": "2021-11-10 13:18:52:190183"
+  "timestamp": "2021-11-10T13:18:52Z"
 }
 ```

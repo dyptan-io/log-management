@@ -16,8 +16,8 @@ import (
 
 func main() {
 	config := readConfig()
-
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	store := storage.NewInMemory[service.LogEntry]()
 	repository := service.NewRepository(store)
 	router := chi.NewRouter()

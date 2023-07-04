@@ -8,7 +8,7 @@ import (
 
 var (
 	// ErrMissingID is an error when the entity ID is missing.
-	ErrMissingID = errors.New("missing record EntryID")
+	ErrMissingID = errors.New("missing record ID")
 	// ErrNotFound is an error when record is not found.
 	ErrNotFound = errors.New("record not found")
 )
