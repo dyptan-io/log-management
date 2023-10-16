@@ -10,7 +10,7 @@ import (
 
 	"golang.org/x/exp/slog"
 
-	"github.com/diptanw/log-management/internal/platform/async"
+	"github.com/diptanw/log-management/v2/internal/platform/async"
 )
 
 // Watch traverses the watch directory on schedule and reads new log entries into a common buffer.

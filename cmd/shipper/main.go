@@ -8,10 +8,10 @@ import (
 
 	"golang.org/x/exp/slog"
 
-	"github.com/diptanw/log-management/api"
-	"github.com/diptanw/log-management/internal/platform/fs"
-	"github.com/diptanw/log-management/internal/platform/server"
-	"github.com/diptanw/log-management/internal/processor"
+	"github.com/diptanw/log-management/v2/api"
+	"github.com/diptanw/log-management/v2/internal/platform/fs"
+	"github.com/diptanw/log-management/v2/internal/platform/server"
+	"github.com/diptanw/log-management/v2/internal/processor"
 )
 
 func main() {

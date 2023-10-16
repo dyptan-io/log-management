@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/exp/slog"
 
-	"github.com/diptanw/log-management/api"
-	"github.com/diptanw/log-management/internal/platform/storage"
+	"github.com/diptanw/log-management/v2/api"
+	"github.com/diptanw/log-management/v2/internal/platform/storage"
 )
 
 // Server implements the api.ServerInterface.

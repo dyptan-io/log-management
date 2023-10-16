@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/diptanw/log-management/api"
-	"github.com/diptanw/log-management/internal/platform/server"
+	"github.com/diptanw/log-management/v2/api"
+	"github.com/diptanw/log-management/v2/internal/platform/server"
 )
 
 type (

@@ -1,4 +1,4 @@
-module github.com/diptanw/log-management
+module github.com/diptanw/log-management/v2
 
 go 1.20
 
