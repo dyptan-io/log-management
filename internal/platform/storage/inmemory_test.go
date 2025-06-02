@@ -55,7 +55,7 @@ func TestInMemory_Insert(t *testing.T) {
 			})
 
 			require.NoError(t, err)
-			require.EqualValues(t, test.wantItems, items)
+			require.ElementsMatch(t, test.wantItems, items)
 		})
 	}
 }
@@ -145,7 +145,7 @@ func TestInMemory_Find(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			require.EqualValues(t, test.wantItems, items)
+			require.ElementsMatch(t, test.wantItems, items)
 		})
 	}
 }

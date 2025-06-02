@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
-	"golang.org/x/exp/slog"
 
 	"github.com/diptanw/log-management/v2/api"
 	"github.com/diptanw/log-management/v2/internal/platform/server"

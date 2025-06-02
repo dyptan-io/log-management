@@ -2,9 +2,8 @@ package service
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
-
-	"golang.org/x/exp/slog"
 
 	"github.com/diptanw/log-management/v2/api"
 	"github.com/diptanw/log-management/v2/internal/platform/storage"

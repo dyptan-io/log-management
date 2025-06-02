@@ -36,7 +36,7 @@ libraries for convenience. Tests are added only for [InMemory](internal/platform
 
 It utilizes some commonly used libraries and tools to facilitate development, such as:
 
-- [oapi-codegen](https://github.com/deepmap/oapi-codegen) Go-centric OpenAPI Client and Server Code Generator.
+- [oapi-codegen](github.com/oapi-codegen/oapi-codegen) Go-centric OpenAPI Client and Server Code Generator.
 - [go-chi](https://github.com/go-chi/chi) A lightweight, idiomatic Go HTTP server and router.
 - [slog](https://pkg.go.dev/golang.org/x/exp/slog) A new structured logger from standard library.
 - [testify](https://github.com/stretchr/testify) A handy toolkit for assertion in tests.
@@ -59,7 +59,7 @@ This project follows design and development principles described in:
 Use docker-compose to build and run both services:
 
 ```sh
-docker-compose up --build
+docker compose up --build
 ```
 
 Add log files to configured directory (/testdata as default) and fetch collected logs:

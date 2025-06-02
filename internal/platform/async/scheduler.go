@@ -2,9 +2,8 @@ package async
 
 import (
 	"context"
+	"log/slog"
 	"time"
-
-	"golang.org/x/exp/slog"
 )
 
 type asyncJobFn func(context.Context) error

@@ -15,7 +15,7 @@ type (
 		Decode(b []byte) (api.Log, error)
 	}
 
-	// Processor is a struct that processes and send log entries to receiver.
+	// Processor is a struct that processes and sends log entries to receiver.
 	Processor struct {
 		decoder SourceDecoder
 		client  *api.Client
@@ -30,7 +30,7 @@ func New(encoder SourceDecoder, client *api.Client) Processor {
 	}
 }
 
-// Process decodes raw log entries sends them to logs receiver.
+// Process decodes raw log entries and sends them to logs receiver.
 func (p Processor) Process(m server.Message) error {
 	log, err := p.decoder.Decode(m.Data)
 	if err != nil {

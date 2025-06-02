@@ -38,7 +38,7 @@ func NewInMemory[T Record]() *InMemory[T] {
 	}
 }
 
-// Get returns a single record matching the provided ID.
+// Get a single record matching the provided ID.
 func (s *InMemory[T]) Get(id ID) (t T, err error) {
 	if id == "" {
 		return t, ErrMissingID
@@ -52,7 +52,7 @@ func (s *InMemory[T]) Get(id ID) (t T, err error) {
 	return r.(T), nil
 }
 
-// Find return a result of filtered records.
+// Find a result of filtered records.
 func (s *InMemory[T]) Find(match Matcher[T]) ([]T, error) {
 	var res []T
 
@@ -68,7 +68,7 @@ func (s *InMemory[T]) Find(match Matcher[T]) ([]T, error) {
 	return res, nil
 }
 
-// Insert inserts an entry and overrides existing one.
+// Insert an entry and overrides existing one.
 func (s *InMemory[T]) Insert(r T) error {
 	if r.ID() == "" {
 		return ErrMissingID

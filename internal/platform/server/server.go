@@ -2,11 +2,10 @@ package server
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"time"
-
-	"golang.org/x/exp/slog"
 )
 
 // Listener is an interface for server listener.

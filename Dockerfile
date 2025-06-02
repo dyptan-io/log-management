@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.2
 # https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/syntax.md
 
-FROM golang:1.20-alpine3.17 AS builder
+FROM docker.io/golang:1.24.3-alpine AS builder
 
 ARG package
 
@@ -9,9 +9,10 @@ WORKDIR /src/
 COPY . .
 
 RUN --mount=type=cache,target=/go/pkg/mod \
+    go generate ./api && \
     go build -o srv -v -ldflags "-s -w" ./cmd/${package}
 
-FROM alpine:3.17
+FROM gcr.io/distroless/base
 
 COPY --from=builder /src/srv /usr/local/bin/
 

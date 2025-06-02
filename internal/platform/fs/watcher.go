@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"log/slog"
 	"os"
 	"path"
 	"time"
-
-	"golang.org/x/exp/slog"
 
 	"github.com/diptanw/log-management/v2/internal/platform/async"
 )

@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	"io"
+	"log/slog"
 	"os"
 	"time"
-
-	"golang.org/x/exp/slog"
 
 	"github.com/diptanw/log-management/v2/api"
 	"github.com/diptanw/log-management/v2/internal/platform/fs"
