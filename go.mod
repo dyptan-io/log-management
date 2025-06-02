@@ -1,11 +1,10 @@
-module github.com/diptanw/log-management/v2
+module github.com/dyptan-io/log-management/v2
 
 go 1.24.0
 
 toolchain go1.24.3
 
 require (
-	github.com/go-chi/chi/v5 v5.2.1
 	github.com/oapi-codegen/oapi-codegen/v2 v2.4.1
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/stretchr/testify v1.10.0

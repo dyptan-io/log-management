@@ -7,10 +7,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/diptanw/log-management/v2/api"
-	"github.com/diptanw/log-management/v2/internal/platform/fs"
-	"github.com/diptanw/log-management/v2/internal/platform/server"
-	"github.com/diptanw/log-management/v2/internal/processor"
+	"github.com/dyptan-io/log-management/v2/api"
+	"github.com/dyptan-io/log-management/v2/internal/platform/fs"
+	"github.com/dyptan-io/log-management/v2/internal/platform/server"
+	"github.com/dyptan-io/log-management/v2/internal/processor"
 )
 
 func main() {

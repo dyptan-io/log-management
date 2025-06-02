@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/diptanw/log-management/v2/internal/platform/storage"
+	"github.com/dyptan-io/log-management/v2/internal/platform/storage"
 )
 
 // ErrBadRequestID is an error when request ID is malformed.

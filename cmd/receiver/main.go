@@ -6,12 +6,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/go-chi/chi/v5"
-
-	"github.com/diptanw/log-management/v2/api"
-	"github.com/diptanw/log-management/v2/internal/platform/server"
-	"github.com/diptanw/log-management/v2/internal/platform/storage"
-	"github.com/diptanw/log-management/v2/internal/service"
+	"github.com/dyptan-io/log-management/v2/api"
+	"github.com/dyptan-io/log-management/v2/internal/platform/server"
+	"github.com/dyptan-io/log-management/v2/internal/platform/storage"
+	"github.com/dyptan-io/log-management/v2/internal/service"
 )
 
 func main() {
@@ -20,7 +18,7 @@ func main() {
 
 	store := storage.NewInMemory[service.LogEntry]()
 	repository := service.NewRepository(store)
-	router := chi.NewRouter()
+	router := http.NewServeMux()
 
 	api.HandlerFromMux(service.NewServer(repository, logger), router)
 

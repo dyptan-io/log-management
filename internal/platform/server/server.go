@@ -43,7 +43,7 @@ func (s Server) Serve(ctx context.Context) error {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
-		s.logger.Info("Shutting down server...")
+		s.logger.Info("Shutting down the server...")
 		err = s.srv.Shutdown(ctx)
 	}()
 

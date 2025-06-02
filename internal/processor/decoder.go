@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/diptanw/log-management/v2/api"
+	"github.com/dyptan-io/log-management/v2/api"
 )
 
 type (

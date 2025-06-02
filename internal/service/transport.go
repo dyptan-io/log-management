@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/diptanw/log-management/v2/api"
-	"github.com/diptanw/log-management/v2/internal/platform/storage"
+	"github.com/dyptan-io/log-management/v2/api"
+	"github.com/dyptan-io/log-management/v2/internal/platform/storage"
 )
 
 // Server implements the api.ServerInterface.
